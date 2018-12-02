@@ -2,7 +2,7 @@ library(ggmap)
 library(dplyr)
 
 
-register_google(key = "AIzaSyDGdLAXjjJRpmtx-F91q2UT8lRgTuenHhc", "standard")
+
 tz <- geocode("Tanzania")
 # tz_map <- get_googlemap("Tanzania", zoom = 8, maptype = "roadmap")
 # ggmap(tz_map)
@@ -49,11 +49,12 @@ ggmap(tz_map_terrain) +
 
 ggmap(tz_map_terrain) +
     geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.4) +
-    scale_color_manual(values = c("springgreen3", "purple3", "orangered3"))
+    scale_color_manual(values = c("springgreen3", "purple3", "orangered3")) +
+    theme(legend.position = c(0.26, 0.17), 
+          legend.background = element_rect(fill = "grey90"),
+          legend.text = element_text(size = 11, face = "bold"),
+          legend.title = element_text(size=12, color="red",face = "bold"))
 
-ggmap(tz_map_terrain_small) +
-    geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.4) +
-    scale_color_manual(values = c("springgreen3", "purple3", "orangered3"))
 
 
 ggmap(tz_map_terrain) +
