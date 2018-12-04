@@ -1,11 +1,10 @@
 library(ggmap)
 library(dplyr)
+library(ggthemes)
+library(lemon)
 
 
-
-tz <- geocode("Tanzania")
-# tz_map <- get_googlemap("Tanzania", zoom = 8, maptype = "roadmap")
-# ggmap(tz_map)
+register_google(key = Sys.getenv("GOOGLE_API_KEY"), "standard")
 
 tz_map <- get_googlemap(center = c(lon=34.6, lat= -7.27), zoom = 6, maptype = "roadmap", color="bw")
 ggmap(tz_map)
@@ -44,8 +43,7 @@ train_broken <-
     train %>%
     filter(status_group == "non functional")
 
-ggmap(tz_map_terrain) +
-    geom_point(data=train_repair, aes(x=longitude, y=latitude, color = status_group), alpha = 0.5)
+
 
 ggmap(tz_map_terrain) +
     geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.4) +
@@ -55,13 +53,14 @@ ggmap(tz_map_terrain) +
           legend.text = element_text(size = 11, face = "bold"),
           legend.title = element_text(size=12, color="red",face = "bold"))
 
-
+ggmap(tz_map_terrain) +
+    geom_density_2d(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.9) +
+    #geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha=0.3) +
+    scale_color_manual(values = c("springgreen3", "purple3", "orangered3")) +
+    facet_wrap(. ~status_group, nrow=2, ncol=2) +
+    theme(legend.position = "none")
 
 ggmap(tz_map_terrain) +
-    geom_point(data=train_broken, aes(x=longitude, y=latitude), color = "steelblue3", alpha = 0.4) +
-    ggtitle("Non Functional")
-
-ggmap(tz_map) +
-    geom_density_2d(data=map_sample, aes(x=longitude, y=latitude, color = status_group))
-
+    geom_density_2d(data=train, aes(x=longitude, y=latitude, color = status_group)) +
+    theme(legend.position = "none")
 

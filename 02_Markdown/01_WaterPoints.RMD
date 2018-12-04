@@ -1,0 +1,62 @@
+---
+title: "WaterPoints"
+author: "Matt Dube"
+date: "12/2/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load Libraries
+```{r message=FALSE}
+library(here)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+library(ggmap)
+library(purrr)
+library(broom)
+```
+
+Load Data
+```{r}
+# load data using read_csv from readr library
+train_values <- read.csv(here("00_Data/", "temp/train.set.csv"))
+train_labels <- read.csv(here("00_Data/", "temp/train.label.csv"))
+test_values <- read.csv(here("00_Data/", "temp/test.set.csv"))
+
+# merge train values & labels
+train <- merge(train_values, train_labels)
+```
+
+Map of Tanzania with Waterpoints and Status
+```{r}
+register_google(key = "AIzaSyDGdLAXjjJRpmtx-F91q2UT8lRgTuenHhc", "standard")
+tz_map_terrain <- get_googlemap(center = c(lon=34.6, lat= -7.17), zoom = 6, maptype = "terrain", color="bw")
+
+```
+
+```{r warning=FALSE, fig.width=10,fig.height=9}
+ggmap(tz_map_terrain) +
+    geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.4) +
+    scale_color_manual(values = c("springgreen3", "purple3", "orangered3")) +
+    theme(legend.position = c(0.26, 0.17), 
+          legend.background = element_rect(fill = "grey90"),
+          legend.text = element_text(size = 11, face = "bold"),
+          legend.title = element_text(size=12, color="red",face = "bold"))
+```
+
+
+```{r warning=FALSE, fig.width=11, fig.height=11}
+ggmap(tz_map_terrain) +
+    geom_density_2d(data=train, aes(x=longitude, y=latitude, color = status_group), alpha = 0.9) +
+    #geom_point(data=train, aes(x=longitude, y=latitude, color = status_group), alpha=0.3) +
+    scale_color_manual(values = c("springgreen3", "purple3", "orangered3")) +
+    facet_wrap(. ~status_group, nrow=2, ncol=2) +
+    theme(legend.position = "none")
+```
+

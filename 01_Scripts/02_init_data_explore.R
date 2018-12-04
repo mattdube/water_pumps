@@ -7,6 +7,10 @@ library(ggpubr)
 library(ggmap)
 library(purrr)
 library(broom)
+library(corrplot)
+library(RColorBrewer)
+library(Hmisc)
+library(vcd)
 
 
 # load data using read_csv from readr library
@@ -38,6 +42,25 @@ prop.table(table(train$quantity, train$status_group), margin = 1)
 
 # structure of data
 str(train)
+
+glimpse(train)
+tidy(table(train$waterpoint_type))
+tidy(table(train$waterpoint_type_group))
+
+tidy(table(train$extraction_type))
+tidy(table(train$extraction_type_group))
+tidy(table(train$extraction_type_class))
+
+tidy(chisq.test(train$extraction_type, train$extraction_type_class))
+?assocstats
+
+tab <- xtabs(~extraction_type_class + region, data=train)
+summary(assocstats(tab))
+
+
+train %>%
+    select(basin, subvillage, region, region_code, district_code, lga) %>%
+    head(500) %>% View()
 
 # count missing values by column
 train %>%
@@ -115,37 +138,4 @@ train %>%
 ggplot(subset(train, construction_year > 0), aes(x = construction_year)) +
     geom_histogram(bins = 20) + 
     facet_grid( ~ status_group)
-
-#############################
-# Mapping Well Locations
-#############################
-
-# Create scatter plot: latitude vs longitude with color as status_group
-ggplot(subset(train[1:1000,], latitude < 0 & longitude > 0),
-       aes(x = latitude, y = longitude, color = status_group)) + 
-    geom_point(shape = 1) + 
-    theme(legend.position = "top")
-
-tz <- map_data("world", region = "Tanzania")
-
-ggplot() +
-    geom_polygon(data = tz, aes(x = long, y = lat, group = group), fill = NA, color = "black") +
-    coord_fixed(1.3)
-
-wells_test <- data.frame(
-    long = c(33.12583, 34.77072, 36.11506, 37.14743, 36.16489, 39.28612, 33.22988),
-    lat = c(-5.118154, -9.395642, -6.279268, -3.187555, -6.099289, -6.972403, -3.852983),
-    names = c("Mratibu", "none", "Bombani", "Area 7 Namba 5", "Ezeleda", "Kwa Namaj", "Mission"),
-    status_group = c("functional", "functional", "functional", "non functional", "functional", "functional", "non functional"),
-    stringsAsFactors = FALSE
-)
-
-gg1 <- ggplot() +
-    geom_polygon(data = tz, aes(x = long, y = lat, group = group),  fill = "white", color = "blue") +
-    coord_fixed(1.3)
-
-gg1 + 
-    geom_point(data = wells_test, aes(x = long, y = lat, color = status_group), size = 4) +
-    theme_void()
-
 
