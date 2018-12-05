@@ -1,22 +1,22 @@
 library(here)
-library(readr)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(ggpubr)
-library(ggmap)
-library(purrr)
-library(broom)
-library(corrplot)
-library(RColorBrewer)
-library(Hmisc)
-library(vcd)
+library(readr)          # loading data
+library(dplyr)          # data wrangling
+library(tidyr)          # data cleaning
+library(ggplot2)        # plotting
+#library(ggpubr)
+library(ggmap)          # create maps
+library(purrr) 
+library(broom)          # clean up output
+#library(corrplot)
+library(RColorBrewer)   # colors for graphs
+#library(Hmisc)
+library(vcd)            # Cramer's V
 
 
 # load data using read_csv from readr library
-train_values <- read.csv(here("00_Data/", "temp/train.set.csv"))
-train_labels <- read.csv(here("00_Data/", "temp/train.label.csv"))
-test_values <- read.csv(here("00_Data/", "temp/test.set.csv"))
+train_values <- read_csv(here("00_Data", "raw/train.set.csv"))
+train_labels <- read_csv(here("00_Data", "raw/train.label.csv"))
+test_values <- read_csv(here("00_Data", "raw/test.set.csv"))
 
 # merge train values & labels
 train <- merge(train_values, train_labels)
@@ -31,8 +31,8 @@ train_sample <- train %>%
     head(200)
 
 # target variable is status_group - examine count and proportions for each group
-table(train$status_group)
-prop.table(table(train$status_group))
+tidy(table(train$status_group))
+tidy(prop.table(table(train$status_group)))
 
 # compare quantity with functioning pumps
 table(train$quantity, train$status_group)
@@ -51,11 +51,7 @@ tidy(table(train$extraction_type))
 tidy(table(train$extraction_type_group))
 tidy(table(train$extraction_type_class))
 
-tidy(chisq.test(train$extraction_type, train$extraction_type_class))
-?assocstats
 
-tab <- xtabs(~extraction_type_class + region, data=train)
-summary(assocstats(tab))
 
 
 train %>%
